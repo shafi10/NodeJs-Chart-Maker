@@ -1,0 +1,123 @@
+<!DOCTYPE hmtl>
+
+<html>
+
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- ZingChart CDN script -->
+    <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
+
+    <style>
+      #chart {
+        height: 350px;
+        width: 700px;
+      }
+    </style>
+
+  </head>
+
+  <body>
+<div class="container">
+    <div class="row">
+		<div class="header clearfix">
+      	<h3 class="text-muted">Make a beautiful chart</h3>
+			<nav>
+			  <ul class="nav nav-pills pull-right">
+          <li  role="presentation"><a href="/api/add">Add Data</a></li>
+			  </ul>
+			</nav>
+		</div>
+     </div>
+     <div class="panel panel-default">
+       <div class="panel-heading">
+   	  <p class="panel-title">Chart Value</p>
+   	</div>
+
+    <!-- EJS loop through employees returned from MongoDB -->
+    <ul>
+
+      <!-- inserts each employee name/age from MongoDB to list -->
+      <% employees.forEach(employee => { %>
+      <li><%= `Data: ${employee.name}, Value: ${employee.age}` %></li>
+      <% }); %>
+    </ul>
+  </div>
+    <ul>
+
+    <!-- chart container -->
+    <div id="chart"></div>
+    <br>
+  </ul>
+    <!-- fetches data from api/data page & renders chart from data returned -->
+    <script>
+
+      // creates variable for url we want to fetch
+      const url = 'http://localhost:3000/api/data';
+
+      // fetch call to our /api/data page
+      fetch(url)
+
+        // creates promise to work with response from /api/data
+        .then(res => {
+
+          // throws error if there is a problem fetching page
+          if (!res.ok) {
+
+            // returns error with response text of error
+            throw new Error(res.statusText);
+
+          }
+
+          // returns data from /api/data page in json format to next promise
+          return res.json();
+
+        })
+
+        // creates promise with returned data from previous promise
+        .then(data => {
+
+          // creates employees variable to store JSON data form /api/data
+          let employees = data;
+
+          // creates empty employeeInfo array
+          let employeeInfo = [];
+
+          // loops through data from employee variable
+          employees.forEach(employee => {
+
+            // pushes values from employees variable to empty employeeInfo array
+            employeeInfo.push([employee.name, parseInt(employee.age)]);
+
+          });
+
+          // creates chart const with employeeInfo array
+          const chart = {
+            type: 'bar',
+            series: [
+              {
+                values: employeeInfo
+              }
+            ]
+          };
+
+          // renders zingchart to the page
+          zingchart.render({
+            id: 'chart',
+            data: chart,
+            height: '100%',
+            width: '100%'
+          });
+
+        })
+
+        // catches errors in promise chain
+        .catch(error => console.log('fetch error'));
+
+    </script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  </body>
+
+</html>
